@@ -78,7 +78,7 @@ class Complaint(models.Model):
         verbose_name='Кто жаловался',
         on_delete=models.CASCADE)
     apartment = models.ForeignKey(
-        'Flat',
+        Flat,
         verbose_name='Квартира, на которую пожаловались',
         on_delete=models.CASCADE)
     complaint_text = models.TextField(
@@ -88,3 +88,20 @@ class Complaint(models.Model):
 
     def __str__(self):
         return f'Жалоба от {self.user} на квартиру {self.apartment}'
+
+
+class Owner(models.Model):
+    name = models.CharField('ФИО владельца', max_length=200)
+    phonenumber = models.CharField('Номер владельца', max_length=20)
+    pure_phone = PhoneNumberField(
+        'Нормализованный номер владельца',
+        blank=True)
+
+    owned_apartments = models.ManyToManyField(
+        Flat,
+        verbose_name='Квартиры в собственности',
+        related_name='owners',
+        blank=True)
+
+    def __str__(self):
+        return f'{self.name}'
