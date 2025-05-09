@@ -7,16 +7,17 @@ from django.db import migrations
 def normalize_phone_numbers(apps, schema_editor):
     Flat = apps.get_model('property', 'Flat')
 
-    for flat in Flat.objects.all():
+    for flat in Flat.objects.iterator():
         phone_number = flat.owners_phonenumber 
         parsed_number = phonenumbers.parse(phone_number, "RU")
         if phonenumbers.is_valid_number(parsed_number): 
-            flat.owner_pure_phone = phonenumbers.format_number(
-                parsed_number, phonenumbers.PhoneNumberFormat.E164
-            )
-        else:
-            flat.owner_pure_phone = None
-        flat.save() 
+            try:
+                flat.owner_pure_phone = phonenumbers.format_number(
+                    parsed_number, phonenumbers.PhoneNumberFormat.E164
+                )
+                flat.save() 
+            except phonenumbers.NumberParseException:
+                pass
 
 
 class Migration(migrations.Migration):
